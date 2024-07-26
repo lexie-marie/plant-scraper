@@ -1,27 +1,18 @@
 [tool.poetry]
-name = "plant_scraper_rag"
+name = "plant-scraper"
 version = "0.1.0"
 description = ""
-authors = ["Lexie Marinelli <lexie.marinelli@gmail.com>"]
+authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 packages = [
     { include = "app" },
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.12"
+python = "^3.11"
 uvicorn = "^0.23.2"
-psycopg = "^3.1.17"
-pgvector = "^0.2.4"
-playwright = "^1.45.0"
-langchain-openai = "^0.1.17"
-langchain = "^0.2.10"
-beautifulsoup4 = "^4.12.3"
-python-dotenv = "^1.0.1"
-html2text = "^2024.2.26"
-langchain-experimental = "^0.0.62"
-unstructured = "^0.15.0"
-selenium = "^4.23.0"
+langserve = {extras = ["server"], version = ">=0.0.30"}
+pydantic = "<2"
 
 
 [tool.poetry.group.dev.dependencies]
