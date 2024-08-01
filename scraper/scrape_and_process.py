@@ -7,7 +7,7 @@ from langchain_community.document_loaders import AsyncChromiumLoader, AsyncHtmlL
     SeleniumURLLoader, PlaywrightURLLoader
 from langchain_community.document_transformers import BeautifulSoupTransformer, Html2TextTransformer
 from langchain_openai import OpenAIEmbeddings
-from langchain_community.vectorstores import PGVector
+from langchain_community.vectorstores.pgvector import PGVector
 from langchain_experimental.text_splitter import SemanticChunker
 
 from config import EMBEDDING_MODEL, PG_COLLECTION_NAME
