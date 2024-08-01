@@ -12,6 +12,7 @@ from langchain_core.messages import get_buffer_string
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnablePassthrough
+from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 
 from config import PG_COLLECTION_NAME
@@ -21,6 +22,7 @@ load_dotenv()
 
 class RagInput(TypedDict):
     question: str
+    session_id: str
 
 
 vector_store = PGVector(
@@ -57,33 +59,33 @@ no_history_chain = (
         )
 ).with_types(input_type=RagInput)
 
-# history_retriever = lambda session_id: SQLChatMessageHistory(
-#     connection_string=os.getenv("POSTGRES_MEMORY_URL"),
-#     session_id=session_id
-# )
+history_retriever = lambda session_id: SQLChatMessageHistory(
+    connection_string=os.getenv("POSTGRES_MEMORY_URL"),
+    session_id=session_id
+)
 
-# _template = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its orignal language,
-#
-# Chat history:
-# {chat_history}
-# Follow Up Input: {question}
-# Standalone Question:"""s
-# condense_question_prompt = PromptTemplate.from_template(_template)
+_template = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question, in its orignal language,
 
-# standalone_question = RunnableParallel(
-#     question=RunnableParallel(
-#         question=RunnablePassthrough(),
-#         chat_history=lambda x: get_buffer_string(x["chat_history"])
-#     ) | condense_question_prompt | llm | StrOutputParser()
-# )
+Chat history:
+{chat_history}
+Follow Up Input: {question}
+Standalone Question:"""
+condense_question_prompt = PromptTemplate.from_template(_template)
 
-# final_chain = RunnableWithMessageHistory(
-#     runnable= no_history_chain,
-#     input_messages_key="question",
-#     history_messages_key="chat_history",
-#     output_messages_key="answer",
-#     get_session_history=history_retriever
-# )
+standalone_question = RunnableParallel(
+    question=RunnableParallel(
+        question=RunnablePassthrough(),
+        chat_history=lambda x: get_buffer_string(x["chat_history"])
+    ) | condense_question_prompt | llm | StrOutputParser()
+)
+
+final_chain = RunnableWithMessageHistory(
+    runnable= no_history_chain,
+    input_messages_key="question",
+    history_messages_key="chat_history",
+    output_messages_key="answer",
+    get_session_history=history_retriever
+)
 
 # NO_HISTORY_CHAIN_INVOKE = no_history_chain.invoke({"question": "What is a low water, full sun plant you recommend?"})
 # print(NO_HISTORY_CHAIN_INVOKE)

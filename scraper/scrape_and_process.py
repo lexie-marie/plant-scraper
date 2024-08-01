@@ -31,14 +31,14 @@ async def read_url():
 # docs = loop.run_until_complete(wait_for(read_url(), 2000))
 # loop.close()
 
-loader = PlaywrightURLLoader(urls=url, remove_selectors=["header", "footer"])
+loader = PlaywrightURLLoader(urls=urls, remove_selectors=["header", "footer"])
 docs = loader.load()
 
 # Transform
 # bs_transformer = BeautifulSoupTransformer()
 # docs_transformed = bs_transformer.transform_documents(docs)
 html2text = Html2TextTransformer()
-docs_transformed = html2text.transform_documents(docs)
+docs_transformed = html2text.transform_documents(docs, ignore_links=False, ignore_images=False, bodywidth=0)
 # transformer = UnstructuredURLLoader
 # print(docs_transformed)
 # loader = UnstructuredURLLoader(
@@ -54,9 +54,9 @@ embeddings = OpenAIEmbeddings(
 text_splitter = SemanticChunker(
     embeddings=embeddings
 )
-#
+
 chunks = text_splitter.split_documents(docs_transformed)
-print(chunks)
+# print(chunks)
 
 # Result
 # print(len(docs_transformed))
